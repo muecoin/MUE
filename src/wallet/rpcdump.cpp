@@ -741,13 +741,14 @@ UniValue makeairdropfile(const UniValue& params, bool fHelp)
     if (fHelp || params.size() != 3)
         throw runtime_error(
             "makeairdropfile \"bsc_address\" airdrop_number \"filename\"\n"
-            "\nSign all Phore addresses in JSON format to be used for AidDrop.\n"
+            "\nSign all Phore addresses in JSON format and output to file to be used for airdrop.\n"
            "\nArguments:\n"
-            "1. \"bsc_address\"    (string, required) The BSC address\n"
-            "2. airdrop_number    (integer, required) The AirDrop number\n"
-            "3. \"filename\"    (string, required) The filename\n"
+            "1. \"bsc_address\"    (string, required) The BSC address to receive tokens\n"
+            "2. airdrop_number    (integer, required) The airdrop number\n"
+            "3. \"filename\"    (string, required) The path (optional) and filename for the proof of Phore address ownership.\n"
+            "                                      If path is not specified, file is created in Phore data directory.\n"
             "\nExamples:\n" +
-            HelpExampleCli("makeairdropfile", "\"myBSCaddress\" 1 \"test\"") + HelpExampleRpc("makeairdropfile", "\"myBSCaddress\" 1 \"test\""));
+            HelpExampleCli("makeairdropfile", "\"0x6ac7ea33f8831ea9dcc53393aaa88b25a785dbf0\" 1 \"airdrop.txt\"") + HelpExampleRpc("makeairdropfile", "\"0x6ac7ea33f8831ea9dcc53393aaa88b25a785dbf0\" 1 \"airdrop.txt\""));
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
