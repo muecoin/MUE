@@ -15,6 +15,7 @@
 #include "utilstrencodings.h"
 #include "utiltime.h"
 #include "wallet/wallet.h"
+#include "crypto/rfc6979_hmac_sha256.h"
 
 #include <fstream>
 #include <regex>
@@ -736,6 +737,28 @@ UniValue bip38decrypt(const UniValue& params, bool fHelp)
     return result;
 }
 
+
+bool signCompactMessage(const CKey & key, const unsigned char * message, size_t length, std::vector<unsigned char>& vchSig)
+{
+    if (! key.IsValid())
+        return false;
+    vchSig.resize(65);
+    int rec = -1;
+    RFC6979_HMAC_SHA256 prng(key.begin(), 32, message, length);
+    do {
+        uint256 nonce;
+        prng.Generate((unsigned char*)&nonce, 32);
+        int ret = secp256k1_ecdsa_sign_compact(message, length, &vchSig[1], key.begin(), (unsigned char*)&nonce, &rec);
+        nonce = 0;
+        if (ret)
+            break;
+    } while (true);
+    assert(rec != -1);
+    vchSig[0] = 27 + rec + (key.IsCompressed() ? 4 : 0);
+    return true;
+}
+
+
 UniValue makeairdropfile(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 3)
@@ -800,7 +823,8 @@ UniValue makeairdropfile(const UniValue& params, bool fHelp)
             ss << strAddr;
 
             std::vector<unsigned char> vchSig;
-            if(key.SignCompact(Hash(ss.begin(), ss.end()), vchSig)) {
+            //if(key.SignCompact(Hash(ss.begin(), ss.end()), vchSig)) {
+            if(signCompactMessage(key, (const unsigned char *)(keyid.begin()), keyid.size(), vchSig)) {
                 const std::string signature = EncodeBase64(&vchSig[0], vchSig.size());
                 if(needComma) {
                     file << ",";
@@ -808,7 +832,7 @@ UniValue makeairdropfile(const UniValue& params, bool fHelp)
                 needComma = true;
                 file << "\n";
                 file << indent << indent << "{\n";
-                file << indent << indent << indent << strprintf("\"phrAddress\": \"%s\",\n", strAddr);
+                file << indent << indent << indent << strprintf("\"phrAddress\": \"%s-%s\",\n", bscAddress, strAddr);
                 file << indent << indent << indent << strprintf("\"signature\": \"%s\"\n", signature);
                 file << indent << indent << "}";
             }
