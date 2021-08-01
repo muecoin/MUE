@@ -794,15 +794,15 @@ UniValue makeairdropfile(const UniValue& params, bool fHelp)
     for (std::vector<std::pair<int64_t, CKeyID> >::const_iterator it = vKeyBirth.begin(); it != vKeyBirth.end(); it++) {
         const CKeyID& keyid = it->second;
         std::string strAddr = EncodeDestination(CTxDestination(keyid));
-        std::string strDelimiter = "-";
+        std::string message (bscAddress);
+        message.append("-");
+        message.append(strAddr);
 
         CKey key;
         if (pwalletMain->GetKey(keyid, key)) {
             CHashWriter ss(SER_GETHASH, 0);
             ss << strMessageMagic;
-            ss << bscAddress;
-            ss << strDelimiter;
-            ss << strAddr;
+            ss << message;
 
             std::vector<unsigned char> vchSig;
             if(key.SignCompact(ss.GetHash(), vchSig)) {
