@@ -737,6 +737,30 @@ UniValue bip38decrypt(const UniValue& params, bool fHelp)
     return result;
 }
 
+bool isValidBscAddress(const std::string & bscAddress)
+{
+    if(bscAddress.size() != 42) {
+        return false;
+    }
+    if(bscAddress[0] != '0' || bscAddress[1] != 'x') {
+        return false;
+    }
+    for(size_t i = 2; i < bscAddress.size(); ++i) {
+        const char c = bscAddress[i];
+        if(c >= '0' && c <= '9') {
+            continue;
+        }
+        if(c >= 'a' && c <= 'f') {
+            continue;
+        }
+        if(c >= 'A' && c <= 'F') {
+            continue;
+        }
+        return false;
+    }
+    return true;
+}
+
 UniValue makeairdropfile(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 3)
@@ -757,10 +781,15 @@ UniValue makeairdropfile(const UniValue& params, bool fHelp)
 
     const std::string bscAddress = params[0].get_str();
     const std::string airDropNumber = params[1].get_str();
-    
+
+    /* seems regex causes regex_error on some compilers or OS, let's check it manually
     std::regex re("^0x[0-9a-fA-F]{40}$");
     std::smatch matchResult;
     if(! std::regex_match(bscAddress, matchResult, re)) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid BSC address format.");
+    }
+    */
+    if(! isValidBscAddress(bscAddress)) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid BSC address format.");
     }
 
