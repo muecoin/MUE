@@ -26,4 +26,4 @@ src/clientversion.cpp export-subst
 *.svg  binary # even if it is text based
 *.tiff binary
 *.xcf  binary
-*.xpm  binyry # even if it is text based
+*.xpm  binary # even if it is text based
