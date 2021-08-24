@@ -15,5 +15,9 @@ src/clientversion.cpp export-subst
 #
 
 # (binary is a macro for -text -diff)
-# *.png binary
-# *.tiff binary
+*.icns binary
+*.ico  binary
+*.png  binary
+*.svg  binary
+*.tiff binary
+*.xcf  binary
