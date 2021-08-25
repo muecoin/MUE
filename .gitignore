@@ -1,5 +1,6 @@
 *.sublime-project
 *.sublime-workspace
+.vs
 .vscode
 todo.txt
 reset-files.bash
