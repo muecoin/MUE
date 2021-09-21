@@ -17,13 +17,13 @@ src/clientversion.cpp export-subst
 # (binary is a macro for -text -diff)
 *.bmp  binary
 *.gz   binary
-*.icns binary # even if it is text based
+*.icns binary
 *.ico  binary
 *.pack binary
 *.pgp  binary
 *.png  binary
 *.raw  binary
-*.svg  binary # even if it is text based
+*.svg  binary
 *.tiff binary
 *.xcf  binary
-*.xpm  binary # even if it is text based
+*.xpm  binary
