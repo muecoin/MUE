@@ -6,6 +6,7 @@ src/clientversion.cpp export-subst
 
 # Force the following filetypes to have Linux eols, so Windows does not break them
 *.* text eol=lf
+/src/leveldb/build_detect_platform text eol=lf
 
 # Force the following filetypes to have Windows eols, so Linux does not break them
 #/.idea/* text eol=crlf

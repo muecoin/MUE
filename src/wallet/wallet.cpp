@@ -4783,11 +4783,6 @@ CScript GetLargestContributor(set<pair<const CWalletTx*, unsigned int> >& setCoi
 
 string CWallet::GetUniqueWalletBackupName() const
 {
-    posix_time::ptime timeLocal = posix_time::second_clock::local_time();
-    stringstream ssDateTime;
-
-
-    ssDateTime << gregorian::to_iso_extended_string(timeLocal.date()) << "-" << timeLocal.time_of_day();
     return strprintf("wallet.dat%s", DateTimeStrFormat(".%Y-%m-%d-%H-%M", GetTime()));
 }
 
