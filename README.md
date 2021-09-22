@@ -70,3 +70,15 @@ For security, we *strongly recommend* you now send those coins to yourself to a 
 For support, please don't hesitate to join us in our chat platform at http://discord.gg/5PD3X7G
 
 *Only transactions up to and including block 833658 will be processed
+
+## How to run the linux monetaryunit-qt executable under Windows Subsystem Linux
+Please follow these steps
+1. (Windows) Install VcXsrv 
+2. (Windows) Run XLaunch 
+	1. Display settings: Keep default settings (Multible Windows + Display number = -1)
+	2. Client startup: Keep default settings (Start no client)
+	3. Extra settings: Enable all checkboxes especially "Disable access control" or it will not work.
+	4. (Optional) Save the settings for later use.
+3. (WSL) Add ```export DISPLAY=$(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0.0``` to the end of your .bashrc
+4. (WSL) Start monetaryunit-qt
+5. (Optional) In case this did not work. Most likeley your windows firewall is blocking the connection. During the first start of XLaunch some rules will be set. Search for the blocking firewall rules "VcXsrv windows xserver" and disable them. 
