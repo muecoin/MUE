@@ -122,12 +122,12 @@ void AfterReleaseLock(const void * lockInstance, const bool ownsLock);
 #define AfterReleaseLock(lockInstance, ownsLock)
 #endif
 
-/** Wrapper around boost::unique_lock<CCriticalSection> */
+/** Wrapper around std::unique_lock<CCriticalSection> */
 template <typename Mutex>
 class SCOPED_LOCKABLE CMutexLock
 {
 private:
-    std::unique_lock<CCriticalSection> lock;
+    std::unique_lock<Mutex> lock;
 
     void Enter(const char* pszName, const char* pszFile, int nLine)
     {
@@ -152,7 +152,7 @@ private:
     }
 
 public:
-    CCriticalBlock(CCriticalSection& mutexIn, const char* pszName, const char* pszFile, int nLine, bool fTry = false) EXCLUSIVE_LOCK_FUNCTION(mutexIn) : lock(mutexIn, std::defer_lock)
+    CMutexLock(Mutex& mutexIn, const char* pszName, const char* pszFile, int nLine, bool fTry = false) EXCLUSIVE_LOCK_FUNCTION(mutexIn) : lock(mutexIn, std::defer_lock)
     {
 		BeforeAcquireLock(this, &mutexIn, pszName, pszFile, nLine, fTry);
 
@@ -164,13 +164,13 @@ public:
 		AfterAcquireLock(this, lock.owns_lock());
     }
 
-    CCriticalBlock(CCriticalSection* pmutexIn, const char* pszName, const char* pszFile, int nLine, bool fTry = false) EXCLUSIVE_LOCK_FUNCTION(pmutexIn)
+    CMutexLock(Mutex* pmutexIn, const char* pszName, const char* pszFile, int nLine, bool fTry = false) EXCLUSIVE_LOCK_FUNCTION(pmutexIn)
     {
         if (!pmutexIn) return;
 
 		BeforeAcquireLock(this, pmutexIn, pszName, pszFile, nLine, fTry);
 
-        lock = boost::unique_lock<Mutex>(*pmutexIn, boost::defer_lock);
+        lock = std::unique_lock<Mutex>(*pmutexIn, std::defer_lock);
         if (fTry)
             TryEnter(pszName, pszFile, nLine);
         else
@@ -179,7 +179,7 @@ public:
 		AfterAcquireLock(this, lock.owns_lock());
     }
 
-    ~CCriticalBlock() UNLOCK_FUNCTION()
+    ~CMutexLock() UNLOCK_FUNCTION()
     {
         if (lock.owns_lock())
             LeaveCritical();
@@ -192,6 +192,8 @@ public:
         return lock.owns_lock();
     }
 };
+
+typedef CMutexLock<CCriticalSection> CCriticalBlock;
 
 #define PASTE(x, y) x ## y
 #define PASTE2(x, y) PASTE(x, y)
