@@ -128,7 +128,7 @@ background.tiff@2x.png
 .cproject
 .project
 /doc/doxygen/
-doc/Doxyfile
+/doc/Doxyfile
 /nbproject/
 libbitcoinconsensus.pc
 .idea

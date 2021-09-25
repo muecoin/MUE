@@ -5,19 +5,19 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "../amount.h"
-#include "../base58.h"
-#include "../chainparams.h"
-#include "../consensus/validation.h"
-#include "../core_io.h"
-#include "../init.h"
-#include "../main.h"
-#include "../miner.h"
-#include "../net.h"
-#include "../pow.h"
-#include "server.h"
-#include "../util.h"
-#include "../validationinterface.h"
+#include "amount.h"
+#include "base58.h"
+#include "chainparams.h"
+#include "consensus/validation.h"
+#include "core_io.h"
+#include "init.h"
+#include "main.h"
+#include "miner.h"
+#include "net.h"
+#include "pow.h"
+#include "rpc/server.h"
+#include "util.h"
+#include "validationinterface.h"
 #ifdef ENABLE_WALLET
 #include "wallet/db.h"
 #include "wallet/wallet.h"
@@ -140,6 +140,9 @@ UniValue setgenerate(const UniValue& params, bool fHelp)
     bool fGenerate = true;
     if (params.size() > 0)
         fGenerate = params[0].get_bool();
+
+    if (fGenerate && (chainActive.Height() >= Params().LAST_POW_BLOCK()))
+        throw JSONRPCError(RPC_INVALID_REQUEST, "Proof of Work phase has already ended");
 
     int nGenProcLimit = -1;
     if (params.size() > 1) {
@@ -522,7 +525,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     UniValue transactions(UniValue::VARR);
     map<uint256, int64_t> setTxIndex;
     int i = 0;
-    BOOST_FOREACH (CTransaction& tx, pblock->vtx) {
+    for (CTransaction& tx : pblock->vtx) {
         uint256 txHash = tx.GetHash();
         setTxIndex[txHash] = i++;
 
@@ -536,7 +539,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
         entry.push_back(Pair("hash", tx.GetWitnessHash().GetHex()));
 
         UniValue deps(UniValue::VARR);
-        BOOST_FOREACH (const CTxIn& in, tx.vin) {
+        for (const CTxIn& in : tx.vin) {
             if (setTxIndex.count(in.prevout.hash))
                 deps.push_back(setTxIndex[in.prevout.hash]);
         }

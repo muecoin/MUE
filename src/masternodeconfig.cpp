@@ -130,14 +130,16 @@ void CMasternodeConfig::writeToMasternodeConf()
 	
     std::string masternodeAliasBase = "";
 	
-   for (CMasternodeConfig::CMasternodeEntry mne : masternodeConfig.getEntries()) {
-        // Orders configs in proper strings
-        std::string masternodeAliasLine  = mne.getAlias() + " " + mne.getIp() + " " + mne.getPrivKey() + " " + mne.getTxHash() + " " + mne.getOutputIndex() + "\n";
-        masternodeAliasBase = masternodeAliasBase + masternodeAliasLine;
-   }
-    //Writes it to the string
-    fwrite(masternodeAliasBase.c_str(), std::strlen(masternodeAliasBase.c_str()), 1, configFile);
-    // When done adding all the masternodes to the config close the file
+	std::string masternodeAliasBase = "";
+	
+	for (CMasternodeConfig::CMasternodeEntry mne : masternodeConfig.getEntries()) {
+		// Orders configs in proper strings
+		std::string masternodeAliasLine  = mne.getAlias() + " " + mne.getIp() + " " + mne.getPrivKey() + " " + mne.getTxHash() + " " + mne.getOutputIndex() + "\n";
+		masternodeAliasBase = masternodeAliasBase + masternodeAliasLine;
+	}
+	//Writes it to the string
+	fwrite(masternodeAliasBase.c_str(), std::strlen(masternodeAliasBase.c_str()), 1, configFile);
+	// When done adding all the masternodes to the config close the file	
     fclose(configFile);
     clear();
     std::string strErr;

@@ -3,7 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "wallet_ismine.h"
+#include "wallet/wallet_ismine.h"
 
 #include "key.h"
 #include "keystore.h"
@@ -11,7 +11,7 @@
 #include "script/standard.h"
 #include "script/sign.h"
 
-#include <boost/foreach.hpp>
+
 
 typedef std::vector<unsigned char> valtype;
 

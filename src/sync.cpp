@@ -13,6 +13,11 @@
 
 #include <stdio.h>
 
+#include <mutex>
+
+
+#include <boost/thread.hpp>
+
 #ifdef DEBUG_LOCKCONTENTION
 #if !defined(HAVE_THREAD_LOCAL)
 static_assert(false, "thread_local is not supported");
@@ -179,3 +184,160 @@ void DeleteLock(void* cs)
 }
 
 #endif /* DEBUG_LOCKORDER */
+
+
+#ifdef DEBUG_LOCKBENCHMARK
+
+// using namespace to avoid name conflicting
+namespace benchmark { namespace {
+
+struct LockItem
+{
+	const void * lockInstance;
+	const void * mutexInstance;
+	std::string name;
+	std::string fileName;
+	int lineNumber;
+	bool isTry;
+	int64_t startTime; // milliseconds
+};
+
+using LockItemPtr = std::shared_ptr<LockItem>;
+
+using LockInstanceMap = std::map<const void *, LockItemPtr>;
+using LockItemStack = std::vector<LockItemPtr>;
+using MutextInstanceMap = std::map<const void *, LockItemStack>;
+
+LockInstanceMap lockInstanceMap;
+MutextInstanceMap mutexInstanceMap;
+std::mutex lockMutex;
+
+// The intervals are in milliseconds, <= 0 disables the detect of the slow.
+constexpr int64_t slowLockInterval = 1000 * 1;
+constexpr int64_t slowReleaseInterval = 1000 * 10;
+
+void removeLockItem(const void * lockInstance)
+{
+	std::lock_guard<std::mutex> guard(lockMutex);
+
+	auto lockIt = lockInstanceMap.find(lockInstance);
+	if(lockIt == lockInstanceMap.end()) {
+		return;
+	}
+	
+	auto mutexIt = mutexInstanceMap.find(lockIt->second->mutexInstance);
+	if(mutexIt != mutexInstanceMap.end() && ! mutexIt->second.empty()) {
+		auto it = std::find_if(mutexIt->second.begin(), mutexIt->second.end(), [lockInstance](const LockItemPtr & item) {
+			return item->lockInstance == lockInstance;
+		});
+		if(it != mutexIt->second.end()) {
+			mutexIt->second.erase(it);
+		}
+	}
+
+	lockInstanceMap.erase(lockIt);
+}
+
+
+} }
+
+void BeforeAcquireLock(const void * lockInstance, const void * mutexInstance, const char* pszName, const char* pszFile, int nLine, bool fTry)
+{
+	const auto lockItem = benchmark::LockItemPtr(new benchmark::LockItem {
+		lockInstance,
+		mutexInstance,
+		pszName,
+		pszFile,
+		nLine,
+		fTry,
+		0
+	});
+
+	std::lock_guard<std::mutex> guard(benchmark::lockMutex);
+	benchmark::lockInstanceMap[lockInstance] = lockItem;
+	benchmark::mutexInstanceMap[mutexInstance].push_back(lockItem);
+	lockItem->startTime = GetTimeMillis();
+}
+
+void AfterAcquireLock(const void * lockInstance, const bool ownsLock)
+{
+	if(! ownsLock) {
+		benchmark::removeLockItem(lockInstance);
+		return;
+	}
+	
+	if(benchmark::slowLockInterval > 0) {
+		const auto currentTime = GetTimeMillis();
+		
+		std::lock_guard<std::mutex> guard(benchmark::lockMutex);
+		auto lockIt = benchmark::lockInstanceMap.find(lockInstance);
+		if(lockIt != benchmark::lockInstanceMap.end()) {
+			if(currentTime - lockIt->second->startTime >= benchmark::slowLockInterval) {
+				auto mutexIt = benchmark::mutexInstanceMap.find(lockIt->second->mutexInstance);
+				if(mutexIt != benchmark::mutexInstanceMap.end()) {
+					const auto mutexCount = mutexIt->second.size();
+					switch(mutexCount) {
+					case 0:
+						LogPrintf("Lock benchmark: slow lock is detected, but the lock is not found in the stack.\n");
+						break;
+
+					case 1:
+						LogPrintf("Lock benchmark: slow lock is detected, but there is only 1 lock.\n");
+						break;
+						
+					default:
+						if(mutexIt->second.back()->lockInstance != lockInstance) {
+							LogPrintf("Lock benchmark: error detect, the latest locked instance doesn't match the instance being locked.\n");
+						}
+						else {
+							LogPrintf(
+								"Lock benchmark: slow lock is detected. The slow is at line %d in file %s\n"
+								"The current lock is at line %d in file %s. Used seconds: %ld \n",
+								mutexIt->second[mutexCount - 2]->lineNumber, mutexIt->second[mutexCount - 2]->fileName.c_str(),
+								mutexIt->second[mutexCount - 1]->lineNumber, mutexIt->second[mutexCount - 1]->fileName.c_str(),
+								(long)((currentTime - lockIt->second->startTime) / 1000)
+							);
+						}
+						break;
+					}
+				}
+				else {
+				}
+			}
+		}
+	}
+}
+
+void AfterReleaseLock(const void * lockInstance, const bool ownsLock)
+{
+	if(ownsLock && benchmark::slowReleaseInterval > 0) {
+		const auto currentTime = GetTimeMillis();
+		
+		std::lock_guard<std::mutex> guard(benchmark::lockMutex);
+		auto lockIt = benchmark::lockInstanceMap.find(lockInstance);
+		if(lockIt != benchmark::lockInstanceMap.end()) {
+			if(currentTime - lockIt->second->startTime >= benchmark::slowReleaseInterval) {
+				auto mutexIt = benchmark::mutexInstanceMap.find(lockIt->second->mutexInstance);
+				if(mutexIt != benchmark::mutexInstanceMap.end() && ! mutexIt->second.empty()) {
+					if(mutexIt->second.back()->lockInstance != lockInstance) {
+						LogPrintf("Lock benchmark: error detect, the latest locked instance doesn't match the instance being removed.\n");
+					}
+					else {
+						LogPrintf(
+							"Lock benchmark: slow release is detected. The current lock is at line %d in file %s. Used seconds: %ld \n",
+							mutexIt->second.back()->lineNumber, mutexIt->second.back()->fileName.c_str(),
+							(long)((currentTime - lockIt->second->startTime) / 1000)
+						);
+					}
+				}
+				else {
+				}
+			}
+		}
+	}
+
+	benchmark::removeLockItem(lockInstance);
+}
+
+
+#endif /* DEBUG_LOCKBENCHMARK */

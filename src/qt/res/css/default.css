@@ -145,7 +145,7 @@ QTabBar::tab:pressed {
     outline:0;
 }
 QWidget {
-	selection-background-color: #313d4b;
+	selection-background-color: Highlight;
 	/* Object highlight color */
 	selection-color: #fff;
 	outline: 0;
@@ -315,7 +315,7 @@ QComboBox::item:alternate {
 }
 QComboBox::item:selected {
 	border: 0px solid transparent;
-	background: #313d4b;
+	background: Highlight;
 	color: #FFFFFF;
 }
 QComboBox::indicator {
@@ -437,7 +437,7 @@ QTableView::item:selected {
 	/* Table Item Selected */
 	/* background-color:#00CD8D; */
 	/* background-color:rgba(0,209,136,0.25); */
-	background: #313d4b;
+	background: Highlight;
     color: #fff;
    
 }
@@ -1637,7 +1637,7 @@ QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item {
 
 QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item:selected {
 	/* Coin Control Item (selected) */
-	background-color: #313d4b;
+	background-color: Highlight;
 	color: #fff;
 }
 QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item:checked {
