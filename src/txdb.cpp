@@ -97,6 +97,11 @@ bool CBlockTreeDB::ReadBlockFileInfo(int nFile, CBlockFileInfo& info)
     return Read(std::make_pair('f', nFile), info);
 }
 
+bool CBlockTreeDB::WriteLastBlockFile(int nFile)
+{
+    return Write('l', nFile);
+}
+
 bool CBlockTreeDB::WriteReindexing(bool fReindexing)
 {
     if (fReindexing)

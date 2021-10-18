@@ -261,8 +261,10 @@ public:
     void MarkPreSplitKeys();
 
     bool MintableCoins();
-    bool SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int> >& setCoins, CAmount nTargetAmount) const;
+    bool SelectStakeCoins(std::list<std::unique_ptr<CStakeInput> >& listInputs, CAmount nTargetAmount, int blockHeight) const;
+    bool SelectCoinsDarkDenominated(CAmount nTargetValue, std::vector<CTxIn>& setCoinsRet, CAmount& nValueRet) const;
     bool IsCollateralAmount(CAmount nInputAmount) const;
+    int CountInputsWithAmount(CAmount nInputAmount);
 
     // Zerocoin additions
     bool CreateZerocoinMintTransaction(const CAmount nValue, CMutableTransaction& txNew, std::vector<CDeterministicMint>& vDMints, CReserveKey* reservekey, int64_t& nFeeRet, std::string& strFailReason, const CCoinControl* coinControl = NULL, const bool isZCSpendChange = false);
@@ -484,6 +486,7 @@ public:
     void UnlockCoin(COutPoint& output);
     void UnlockAllCoins();
     void ListLockedCoins(std::vector<COutPoint>& vOutpts);
+    CAmount GetTotalValue(std::vector<CTxIn> vCoins);
 
     /**
      * keystore implementation
@@ -531,6 +534,8 @@ public:
     bool EraseDestData(const CTxDestination& dest, const std::string& key);
     //! Adds a destination data tuple to the store, without saving it to disk
     bool LoadDestData(const CTxDestination& dest, const std::string& key, const std::string& value);
+    //! Look up a destination data tuple in the store, return true if found false otherwise
+    bool GetDestData(const CTxDestination& dest, const std::string& key, std::string* value) const;
 
     //! Adds a watch-only address to the store, and saves it to disk.
     bool AddWatchOnly(const CScript& dest);
@@ -613,6 +618,7 @@ public:
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::string strCommand = NetMsgType::TX);
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB & pwalletdb);
     int GenerateObfuscationOutputs(int nTotalValue, std::vector<CTxOut>& vout);
+    bool ConvertList(std::vector<CTxIn> vCoins, std::vector<int64_t>& vecAmounts);
     bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, CMutableTransaction& txNew, unsigned int& nTxNewTime);
     bool MultiSend();
     void AutoCombineDust();

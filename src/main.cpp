@@ -3366,8 +3366,8 @@ bool static FlushStateToDisk(CValidationState& state, FlushStateMode mode)
                     return state.Error("Failed to write to block index");
                 }
                 setDirtyBlockIndex.erase(it++);
-                }
             }
+            pblocktree->Sync();
             // Finally flush the chainstate (which may refer to block index entries).
             if (!pcoinsTip->Flush())
                 return state.Error("Failed to write to coin database");
@@ -4291,17 +4291,6 @@ bool CheckWork(const CBlock block, CBlockIndex* const pindexPrev)
     if (block.nBits != nBitsRequired)
         return error("%s: incorrect proof of work at %d", __func__, pindexPrev->nHeight + 1);
 
-    if (block.IsProofOfStake()) {
-        uint256 hashProofOfStake;
-        uint256 hash = block.GetHash();
-
-        if(!CheckProofOfStake(block, hashProofOfStake)) {
-            LogPrintf("WARNING: ProcessBlock(): check proof-of-stake failed for block %s\n", hash.ToString().c_str());
-            return false;
-        }
-        if(!mapProofOfStake.count(hash)) // add to mapProofOfStake
-            mapProofOfStake.insert(std::make_pair(hash, hashProofOfStake));
-    }
     return true;
 }
 

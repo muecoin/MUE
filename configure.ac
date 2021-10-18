@@ -343,52 +343,52 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 )
 CXXFLAGS="$TEMP_CXXFLAGS"
 
-TEMP_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS="$CXXFLAGS $SSE41_CXXFLAGS"
-AC_MSG_CHECKING(for SSE4.1 intrinsics)
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-    #include <stdint.h>
-    #include <immintrin.h>
-  ]],[[
-    __m128i l = _mm_set1_epi32(0);
-    return _mm_extract_epi32(l, 3);
-  ]])],
- [ AC_MSG_RESULT(yes); enable_sse41=yes; AC_DEFINE(ENABLE_SSE41, 1, [Define this symbol to build code that uses SSE4.1 intrinsics]) ],
- [ AC_MSG_RESULT(no)]
-)
-CXXFLAGS="$TEMP_CXXFLAGS"
-
-TEMP_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS="$CXXFLAGS $AVX2_CXXFLAGS"
-AC_MSG_CHECKING(for AVX2 intrinsics)
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-    #include <stdint.h>
-    #include <immintrin.h>
-  ]],[[
-    __m256i l = _mm256_set1_epi32(0);
-    return _mm256_extract_epi32(l, 7);
-  ]])],
- [ AC_MSG_RESULT(yes); enable_avx2=yes; AC_DEFINE(ENABLE_AVX2, 1, [Define this symbol to build code that uses AVX2 intrinsics]) ],
- [ AC_MSG_RESULT(no)]
-)
-CXXFLAGS="$TEMP_CXXFLAGS"
-
-TEMP_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS="$CXXFLAGS $SHANI_CXXFLAGS"
-AC_MSG_CHECKING(for SHA-NI intrinsics)
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-    #include <stdint.h>
-    #include <immintrin.h>
-  ]],[[
-    __m128i i = _mm_set1_epi32(0);
-    __m128i j = _mm_set1_epi32(1);
-    __m128i k = _mm_set1_epi32(2);
-    return _mm_extract_epi32(_mm_sha256rnds2_epu32(i, i, k), 0);
-  ]])],
- [ AC_MSG_RESULT(yes); enable_shani=yes; AC_DEFINE(ENABLE_SHANI, 1, [Define this symbol to build code that uses SHA-NI intrinsics]) ],
- [ AC_MSG_RESULT(no)]
-)
-CXXFLAGS="$TEMP_CXXFLAGS"
+#TEMP_CXXFLAGS="$CXXFLAGS"
+#CXXFLAGS="$CXXFLAGS $SSE41_CXXFLAGS"
+#AC_MSG_CHECKING(for SSE4.1 intrinsics)
+#AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#    #include <stdint.h>
+#    #include <immintrin.h>
+#  ]],[[
+#    __m128i l = _mm_set1_epi32(0);
+#    return _mm_extract_epi32(l, 3);
+#  ]])],
+# [ AC_MSG_RESULT(yes); enable_sse41=yes; AC_DEFINE(ENABLE_SSE41, 1, [Define this symbol to build code that uses SSE4.1 intrinsics]) ],
+# [ AC_MSG_RESULT(no)]
+#)
+#CXXFLAGS="$TEMP_CXXFLAGS"
+#
+#TEMP_CXXFLAGS="$CXXFLAGS"
+#CXXFLAGS="$CXXFLAGS $AVX2_CXXFLAGS"
+#AC_MSG_CHECKING(for AVX2 intrinsics)
+#AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#    #include <stdint.h>
+#    #include <immintrin.h>
+#  ]],[[
+#    __m256i l = _mm256_set1_epi32(0);
+#    return _mm256_extract_epi32(l, 7);
+#  ]])],
+# [ AC_MSG_RESULT(yes); enable_avx2=yes; AC_DEFINE(ENABLE_AVX2, 1, [Define this symbol to build code that uses AVX2 intrinsics]) ],
+# [ AC_MSG_RESULT(no)]
+#)
+#CXXFLAGS="$TEMP_CXXFLAGS"
+#
+#TEMP_CXXFLAGS="$CXXFLAGS"
+#CXXFLAGS="$CXXFLAGS $SHANI_CXXFLAGS"
+#AC_MSG_CHECKING(for SHA-NI intrinsics)
+#AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#    #include <stdint.h>
+#    #include <immintrin.h>
+#  ]],[[
+#    __m128i i = _mm_set1_epi32(0);
+#    __m128i j = _mm_set1_epi32(1);
+#    __m128i k = _mm_set1_epi32(2);
+#    return _mm_extract_epi32(_mm_sha256rnds2_epu32(i, i, k), 0);
+#  ]])],
+# [ AC_MSG_RESULT(yes); enable_shani=yes; AC_DEFINE(ENABLE_SHANI, 1, [Define this symbol to build code that uses SHA-NI intrinsics]) ],
+# [ AC_MSG_RESULT(no)]
+#)
+#CXXFLAGS="$TEMP_CXXFLAGS"
 
 CPPFLAGS="$CPPFLAGS -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS"
 

@@ -619,12 +619,6 @@ bool CObfuscationQueue::Sign()
         return false;
     }
 
-
-    return true;
-}
-
-bool CObfuscationQueue::Relay()
-{
     if (!obfuScationSigner.VerifyMessage(pubkey2, vchSig, strMessage, errorMessage)) {
         LogPrintf("CObfuscationQueue():Relay - Verify message failed");
         return false;

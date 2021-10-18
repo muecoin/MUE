@@ -508,7 +508,7 @@ void CTxMemPool::removeConflicts(const CTransaction& tx, std::list<CTransaction>
     std::list<CTransaction> result;
     LOCK(cs);
     for (const CTxIn& txin : tx.vin) {
-        std::map<COutPoint, CInPoint>::iterator it = mapNextTx.find(txin.prevout);
+        auto it = mapNextTx.find(txin.prevout);
         if (it != mapNextTx.end()) {
             const CTransaction& txConflict = *it->second;
             if (txConflict != tx) {
@@ -611,8 +611,8 @@ void CTxMemPool::check(const CCoinsViewCache* pcoins) const
             stepsSinceLastRemove = 0;
         }
     }
-    for (std::map<COutPoint, CInPoint>::const_iterator it = mapNextTx.begin(); it != mapNextTx.end(); it++) {
-        uint256 hash = it->second.ptx->GetHash();
+    for (auto it = mapNextTx.begin(); it != mapNextTx.end(); it++) {
+        uint256 hash = it->second->GetHash();
         std::map<uint256, CTxMemPoolEntry>::const_iterator it2 = mapTx.find(hash);
         const CTransaction& tx = it2->second.GetTx();
         assert(it2 != mapTx.end());

@@ -1517,7 +1517,7 @@ bool CBudgetProposal::IsValid(std::string& strError, bool fCheckCollateral)
     // Calculate maximum block this proposal will be valid, which is start of proposal + (number of payments * cycle)
     int nProposalEnd = GetBlockStart() + (Params().GetBudgetCycleBlocks() * GetTotalPaymentCount());
 
-    // if (GetBlockEnd() < pindexPrev->nHeight - GetBudgetPaymentCycleBlocks() / 2) {
+    // if (GetBlockEnd() < pindexPrev->nHeight - Params().GetBudgetCycleBlocks() / 2) {
     if(nProposalEnd < pindexPrev->nHeight){
         strError = "Proposal " + strProposalName + ": Invalid nBlockEnd (" + std::to_string(nProposalEnd) + ") < current height (" + std::to_string(pindexPrev->nHeight) + ")";
         return false;
@@ -1649,7 +1649,7 @@ int CBudgetProposal::GetBlockEndCycle()
     // Right now single payment proposals have nBlockEnd have a cycle too early!
     // switch back if it break something else
     // end block is half way through the next cycle (so the proposal will be removed much after the payment is sent)
-    // return nBlockEnd - GetBudgetPaymentCycleBlocks() / 2;
+    // return nBlockEnd - Params().GetBudgetCycleBlocks() / 2;
 
     // End block is half way through the next cycle (so the proposal will be removed much after the payment is sent)
     return nBlockEnd;
@@ -1681,7 +1681,7 @@ CBudgetProposalBroadcast::CBudgetProposalBroadcast(std::string strProposalNameIn
     // Right now single payment proposals have nBlockEnd have a cycle too early!
     // switch back if it break something else
     // calculate the end of the cycle for this vote, add half a cycle (vote will be deleted after that block)
-    // nBlockEnd = nCycleStart + GetBudgetPaymentCycleBlocks() * nPaymentCount + GetBudgetPaymentCycleBlocks() / 2;
+    // nBlockEnd = nCycleStart + Params().GetBudgetCycleBlocks() * nPaymentCount + Params().GetBudgetCycleBlocks() / 2;
 
     // Calculate the end of the cycle for this vote, vote will be deleted after next cycle
     nBlockEnd = nCycleStart + (Params().GetBudgetCycleBlocks() + 1)  * nPaymentCount;

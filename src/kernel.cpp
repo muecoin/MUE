@@ -18,6 +18,7 @@
 
 // v1 modifier interval.
 static const int64_t OLD_MODIFIER_INTERVAL = 2087;
+int nStakeTargetSpacing = 60;
 
 // Hard checkpoints of stake modifiers to ensure they are deterministic
 static std::map<int, unsigned int> mapStakeModifierCheckpoints =
@@ -43,6 +44,16 @@ static int64_t GetStakeModifierSelectionIntervalSection(int nSection)
     assert(nSection >= 0 && nSection < 64);
     int64_t a = MODIFIER_INTERVAL  * 63 / (63 + ((63 - nSection) * (MODIFIER_INTERVAL_RATIO - 1)));
     return a;
+}
+
+// Get stake modifier selection interval (in seconds)
+static int64_t GetStakeModifierSelectionInterval()
+{
+    int64_t nSelectionInterval = 0;
+    for (int nSection = 0; nSection < 64; nSection++) {
+        nSelectionInterval += GetStakeModifierSelectionIntervalSection(nSection);
+    }
+    return nSelectionInterval;
 }
 
 // select a block from the candidate blocks in vSortedByTimestamp, excluding
@@ -174,9 +185,9 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
 
     // Sort candidate blocks by timestamp
     std::vector<std::pair<int64_t, uint256> > vSortedByTimestamp;
-    vSortedByTimestamp.reserve(64 * getIntervalVersion(fTestNet) / nStakeTargetSpacing);
+    vSortedByTimestamp.reserve(64 * MODIFIER_INTERVAL / nStakeTargetSpacing);
     int64_t nSelectionInterval = GetStakeModifierSelectionInterval();
-    int64_t nSelectionIntervalStart = (pindexPrev->GetBlockTime() / getIntervalVersion(fTestNet)) * getIntervalVersion(fTestNet) - nSelectionInterval;
+    int64_t nSelectionIntervalStart = (pindexPrev->GetBlockTime() / MODIFIER_INTERVAL) * MODIFIER_INTERVAL - nSelectionInterval;
     const CBlockIndex* pindex = pindexPrev;
 
     while (pindex && pindex->GetBlockTime() >= nSelectionIntervalStart) {

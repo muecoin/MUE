@@ -762,7 +762,7 @@ bool isValidBscAddress(const std::string & bscAddress)
 UniValue makeairdropfile(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 3)
-        throw runtime_error(
+        throw std::runtime_error(
             "makeairdropfile \"bsc_address\" airdrop_number \"filename\"\n"
             "\nSign all Phore addresses in JSON format and output to file to be used for airdrop.\n"
            "\nArguments:\n"
@@ -791,7 +791,7 @@ UniValue makeairdropfile(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid BSC address format.");
     }
 
-    ofstream file;
+    std::ofstream file;
     file.open(params[2].get_str().c_str());
     if (!file.is_open())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot open airdop JSON file");
