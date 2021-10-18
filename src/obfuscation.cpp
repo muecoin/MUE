@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <boost/assign/list_of.hpp>
+#include <boost/foreach.hpp>
 #include <openssl/rand.h>
 
 // The main object for accessing Obfuscation
@@ -618,6 +619,12 @@ bool CObfuscationQueue::Sign()
         return false;
     }
 
+
+    return true;
+}
+
+bool CObfuscationQueue::Relay()
+{
     if (!obfuScationSigner.VerifyMessage(pubkey2, vchSig, strMessage, errorMessage)) {
         LogPrintf("CObfuscationQueue():Relay - Verify message failed");
         return false;

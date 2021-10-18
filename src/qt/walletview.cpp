@@ -120,9 +120,11 @@ WalletView::WalletView(QWidget* parent) : QStackedWidget(parent),
     privacyPage = new PrivacyDialog();
     receiveCoinsPage = new ReceiveCoinsDialog();
     sendCoinsPage = new SendCoinsDialog();
+    proposalList = new ProposalList(this);
 
     addWidget(overviewPage);
     addWidget(transactionsPage);
+    addWidget(proposalList);
     addWidget(privacyPage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
@@ -202,6 +204,7 @@ void WalletView::setWalletModel(WalletModel* walletModel)
     this->walletModel = walletModel;
 
     // Put transaction list in tabs
+    proposalList->setModel(walletModel);
     transactionView->setModel(walletModel);
     overviewPage->setWalletModel(walletModel);
     QSettings settings;
@@ -293,7 +296,7 @@ void WalletView::gotoPrivacyPage()
 
 void WalletView::gotoProposalPage()
 {
-    setCurrentWidget(proposalListPage);
+    setCurrentWidget(proposalList);
 }
 
 
@@ -432,9 +435,7 @@ void WalletView::toggleLockWallet()
     if (encStatus == walletModel->Locked) {
         AskPassphraseDialog dlg(AskPassphraseDialog::UnlockAnonymize, this, walletModel);
         dlg.exec();
-    }
-
-    else if (encStatus == walletModel->Unlocked || encStatus == walletModel->UnlockedForAnonymizationOnly) {
+    } else if (encStatus == walletModel->Unlocked || encStatus == walletModel->UnlockedForAnonymizationOnly) {
             walletModel->setWalletLocked(true);
     }
 }

@@ -97,11 +97,6 @@ bool CBlockTreeDB::ReadBlockFileInfo(int nFile, CBlockFileInfo& info)
     return Read(std::make_pair('f', nFile), info);
 }
 
-bool CBlockTreeDB::WriteLastBlockFile(int nFile)
-{
-    return Write('l', nFile);
-}
-
 bool CBlockTreeDB::WriteReindexing(bool fReindexing)
 {
     if (fReindexing)
@@ -309,7 +304,11 @@ bool CBlockTreeDB::LoadBlockIndexGuts()
                 pindexNew->nMint = diskindex.nMint;
                 pindexNew->nMoneySupply = diskindex.nMoneySupply;
                 pindexNew->nFlags = diskindex.nFlags;
-                pindexNew->nStakeModifier = diskindex.nStakeModifier;
+                if (!Params().IsStakeModifierV2(pindexNew->nHeight)) {
+                    pindexNew->nStakeModifier = diskindex.nStakeModifier;
+                } else {
+                    pindexNew->nStakeModifierV2 = diskindex.nStakeModifierV2;
+                }
                 pindexNew->prevoutStake = diskindex.prevoutStake;
                 pindexNew->nStakeTime = diskindex.nStakeTime;
                 pindexNew->hashProofOfStake = diskindex.hashProofOfStake;

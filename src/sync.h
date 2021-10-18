@@ -110,11 +110,24 @@ typedef std::unique_lock<std::mutex> WaitableLock;
 void PrintLockContention(const char* pszName, const char* pszFile, int nLine);
 #endif
 
+//#define DEBUG_LOCKBENCHMARK
+
+#ifdef DEBUG_LOCKBENCHMARK
+void BeforeAcquireLock(const void * lockInstance, const void * mutexInstance, const char* pszName, const char* pszFile, int nLine, bool fTry);
+void AfterAcquireLock(const void * lockInstance, const bool ownsLock);
+void AfterReleaseLock(const void * lockInstance, const bool ownsLock);
+#else
+#define BeforeAcquireLock(lockInstance, mutexInstance, pszName, pszFile, nLine, fTry)
+#define AfterAcquireLock(lockInstance, ownsLock)
+#define AfterReleaseLock(lockInstance, ownsLock)
+#endif
+
 /** Wrapper around std::unique_lock<CCriticalSection> */
-class SCOPED_LOCKABLE CCriticalBlock
+template <typename Mutex>
+class SCOPED_LOCKABLE CMutexLock
 {
 private:
-    std::unique_lock<CCriticalSection> lock;
+    std::unique_lock<Mutex> lock;
 
     void Enter(const char* pszName, const char* pszFile, int nLine)
     {
@@ -139,29 +152,39 @@ private:
     }
 
 public:
-    CCriticalBlock(CCriticalSection& mutexIn, const char* pszName, const char* pszFile, int nLine, bool fTry = false) EXCLUSIVE_LOCK_FUNCTION(mutexIn) : lock(mutexIn, std::defer_lock)
+    CMutexLock(Mutex& mutexIn, const char* pszName, const char* pszFile, int nLine, bool fTry = false) EXCLUSIVE_LOCK_FUNCTION(mutexIn) : lock(mutexIn, std::defer_lock)
     {
+		BeforeAcquireLock(this, &mutexIn, pszName, pszFile, nLine, fTry);
+
         if (fTry)
             TryEnter(pszName, pszFile, nLine);
         else
             Enter(pszName, pszFile, nLine);
+		
+		AfterAcquireLock(this, lock.owns_lock());
     }
 
-    CCriticalBlock(CCriticalSection* pmutexIn, const char* pszName, const char* pszFile, int nLine, bool fTry = false) EXCLUSIVE_LOCK_FUNCTION(pmutexIn)
+    CMutexLock(Mutex* pmutexIn, const char* pszName, const char* pszFile, int nLine, bool fTry = false) EXCLUSIVE_LOCK_FUNCTION(pmutexIn)
     {
         if (!pmutexIn) return;
 
-        lock = std::unique_lock<CCriticalSection>(*pmutexIn, std::defer_lock);
+		BeforeAcquireLock(this, pmutexIn, pszName, pszFile, nLine, fTry);
+
+        lock = std::unique_lock<Mutex>(*pmutexIn, std::defer_lock);
         if (fTry)
             TryEnter(pszName, pszFile, nLine);
         else
             Enter(pszName, pszFile, nLine);
+		
+		AfterAcquireLock(this, lock.owns_lock());
     }
 
-    ~CCriticalBlock() UNLOCK_FUNCTION()
+    ~CMutexLock() UNLOCK_FUNCTION()
     {
         if (lock.owns_lock())
             LeaveCritical();
+		
+		AfterReleaseLock(this, lock.owns_lock());
     }
 
     operator bool()
@@ -169,6 +192,8 @@ public:
         return lock.owns_lock();
     }
 };
+
+typedef CMutexLock<CCriticalSection> CCriticalBlock;
 
 #define PASTE(x, y) x ## y
 #define PASTE2(x, y) PASTE(x, y)

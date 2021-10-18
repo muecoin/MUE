@@ -15,6 +15,7 @@
 #include <assert.h>
 
 #include <boost/assign/list_of.hpp>
+#include <limits>
 
 
 struct SeedSpec6 {
@@ -74,12 +75,17 @@ static Checkpoints::MapCheckpoints mapCheckpoints =
     ( 900000, uint256("e2bace64fbce057643e49939987f40d0b9487b4e4ffe2b7852e284463a8e3521"))
     ( 950000, uint256("3150bdf897211c60b895ebbb7884d90c7147a53a8eb413d260d54c4ca3aebc61"))
     (1000000, uint256("a88a1ad20733dda703a73c12916c0b77e6242a71b7f88ad827aee8bd9264c652"))
-    (1062034, uint256("3f8c698163c1ba2e641da32fd7e19b394df36136411beb607db3cd6de8a76321"));
+    (1062034, uint256("3f8c698163c1ba2e641da32fd7e19b394df36136411beb607db3cd6de8a76321"))
+    (1119060, uint256("58b0080c0c90a63c2add392f0c2847bed05354f023dd1a9f8d10c8c96ae4bdb5"))
+    (1426250, uint256("9bff7d1d1e68ebd1efc239569e7a92d1dc66c36c0ffc8d0afb2767cf2bb582f9"))
+    (1474699, uint256("d62b044bc1189e94775942913dec19b9b0121b3f1e06a3c53e9ba8439a81ca04"))
+    (1717390, uint256("1e29b76e9ba2003eefa8d4f91872fb742e9e32ac1b390ee53511879ee4f0c6dc"))
+    (1989600, uint256("1d54451d165adffdba72663288ad292ee97cae9c4a839cd671fa71fe2705bac1"));
 
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
-    1569902886, // * UNIX timestamp of last checkpoint block
-    2250332,     // * total number of transactions between genesis and last checkpoint
+    1626359892, // * UNIX timestamp of last checkpoint block
+    5248118,     // * total number of transactions between genesis and last checkpoint
                 //   (the tx=... number in the SetBestChain debug.log lines)
     1500        // * estimated number of transactions per day after checkpoint
 };
@@ -120,6 +126,18 @@ libzerocoin::ZerocoinParams* CChainParams::OldZerocoin_Params() const
     return &ZCParams;
 }
 
+bool CChainParams::HasStakeMinAgeOrDepth(const int contextHeight, const uint32_t contextTime,
+                                         const int utxoFromBlockHeight, const uint32_t utxoFromBlockTime) const
+{
+    // before stake modifier V2, the age required was 3 * 60 * 60 (3 hour) / not required on regtest
+    if (!IsStakeModifierV2(contextHeight))
+        return (NetworkID() == CBaseChainParams::REGTEST || (utxoFromBlockTime + 10800 <= contextTime));
+
+    // after stake modifier V2, we require the utxo to be nStakeMinDepth deep in the chain
+    return (contextHeight - utxoFromBlockHeight >= nStakeMinDepth);
+}
+
+
 class CMainParams : public CChainParams
 {
 public:
@@ -145,8 +163,10 @@ public:
         nRejectBlockOutdatedMajority = 950;
         nToCheckBlockUpgradeMajority = 1000;
         nMinerThreads = 0;
-        nTargetTimespan = 1 * 60; // Phore: 1 day
         nTargetSpacing = 1 * 60;  // Phore: 1 minute
+        nStakeMinDepth = 600;
+        nFutureTimeDriftPoW = 7200;
+        nFutureTimeDriftPoS = 180;
         nMaturity = 50;
         nMasternodeCountDrift = 20;
         nMaxMoneyOut = 1000000000 * COIN;
@@ -215,6 +235,8 @@ public:
         strSporkKey = "04659d53bd8f7ad9d34a17281febedac754e5a6eb136142d3a9c6c0ea21b6ed7498ceb3d872eed00ae755f7aeadaeb1d9ab5e1a8f1e7efcd0ddcb39d4623c12790";
         strObfuscationPoolDummyAddress = "PCYiHgGJJ6xGHqivmdZrYjRnhaYf6AJ2Mp";
 
+        nBlockStakeModifierlV2 = 1747800; // this will be set at a later date
+
         /** Zerocoin */
         zerocoinModulus = "25195908475657893494027183240048398571429282126204032027777137836043662020707595556264018525880784"
             "4069182906412495150821892985591491761845028084891200728449926873928072877767359714183472702618963750149718246911"
@@ -257,19 +279,19 @@ public:
         pchMessageStart[2] = 0x65;
         pchMessageStart[3] = 0xba;
         vAlertPubKey = ParseHex("04d7e13bc896eb07e2db2d7272f5ddfaedfb64b8ed4caa4d917d6e0781b59ca44f8b5d40995622008e40707b47687eebee11cbe3bbaf2348622cc271c7f0d0bd0a");
-        nDefaultPort = 11773;
+        nDefaultPort = 11778;
         nEnforceBlockUpgradeMajority = 51;
         nRejectBlockOutdatedMajority = 75;
         nToCheckBlockUpgradeMajority = 100;
         nMinerThreads = 0;
-        nTargetTimespan = 1 * 60; // Phore: 1 day
         nTargetSpacing = 1 * 10;  // Phore: 1 minute
         nMaturity = 15;
+        nStakeMinDepth = 100;
         nMasternodeCountDrift = 4;
         nModifierUpdateBlock = 1; //approx Mon, 17 Apr 2017 04:00:00 GMT
         nMaxMoneyOut = 43199500 * COIN;
-        nLastPOWBlock = 300;
-        nZerocoinStartHeight = 200;
+        nLastPOWBlock = 500;
+        nZerocoinStartHeight = 600;
 
         nZerocoinLastOldParams = 500000;
 
@@ -308,6 +330,7 @@ public:
         nBudgetCycleBlocks = 864; //!< 1.6 Cycles a day on the testnet it used to be 10 times a day, but this was changed by Michael
         strSporkKey = "040d2595becca91020213bf94735fa26bb92a206aa21be45b0e95f205ff8588ecb9398c5c7d8cfaf78149d230b8dc066c3660573ff2104dac98e43283d6dc882d6"; 
         strObfuscationPoolDummyAddress = "PCYiHgGJJ6xGHqivmdZrYjRnhaYf6AJ2Mp";
+        nBlockStakeModifierlV2 = 1500; // this will be set at a later date
         nBudgetFeeConfirmations = 3; // Number of confirmations for the finalization fee. We have to make this very short
                                      // here because we only have a 8 block finalization window on testnet
     }
@@ -337,19 +360,21 @@ public:
         nRejectBlockOutdatedMajority = 950;
         nToCheckBlockUpgradeMajority = 1000;
         nMinerThreads = 1;
-        nTargetTimespan = 24 * 60 * 60; // Phore: 1 day
         nTargetSpacing = 1 * 60;        // Phore: 1 minutes
         bnProofOfWorkLimit = ~uint256(0) >> 1;
         genesis.nTime = 1505224800;
         genesis.nBits = 0x207fffff;
         genesis.nNonce = 12345;
         nMaturity = 0;
+        nStakeMinDepth = 0;
         nLastPOWBlock = 999999999; // PoS complicates Regtest because of timing issues
         nZerocoinLastOldParams = 499;
         nZerocoinStartHeight = 100;
 
+        nBlockStakeModifierlV2 = std::numeric_limits<int>::max(); // max integer value (never switch on regtest)
+
         hashGenesisBlock = genesis.GetHash();
-        nDefaultPort = 11773;
+        nDefaultPort = 11778;
         assert(hashGenesisBlock == uint256("0x2b1a0f66712aad59ad283662d5b919415a25921ce89511d73019107e380485bf"));
 
         bech32_hrp = "phrt";

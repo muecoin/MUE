@@ -13,7 +13,7 @@
 #include "masternode-sync.h"
 #include "net.h"
 #include "netbase.h"
-#include "server.h"
+#include "rpc/server.h"
 #include "spork.h"
 #include "timedata.h"
 #include "util.h"

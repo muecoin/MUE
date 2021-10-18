@@ -34,7 +34,6 @@ void calculateGroupParamLengths(uint32_t maxPLen, uint32_t securityLevel,
 #define NUM_SCHNORRGEN_ATTEMPTS     10000
 
 // Prototypes
-bool                primalityTestByTrialDivision(uint32_t candidate);
 uint256             calculateSeed(CBigNum modulus, std::string auxString, uint32_t securityLevel, std::string groupName);
 uint256             calculateGeneratorSeed(uint256 seed, uint256 pSeed, uint256 qSeed, std::string label, uint32_t index, uint32_t count);
 
