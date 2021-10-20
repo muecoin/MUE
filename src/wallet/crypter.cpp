@@ -167,7 +167,7 @@ bool EncryptAES256(const SecureString& sKey, const SecureString& sPlaintext, con
 
     // Perform the encryption
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
-    EVP_CIPHER_CTX* ctx;
+    EVP_CIPHER_CTX* ctx = nullptr;
 #else
     EVP_CIPHER_CTX ctx;
 #endif
