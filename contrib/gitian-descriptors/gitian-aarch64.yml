@@ -1,5 +1,5 @@
 ---
-name: "phore-aarch64-1.7"
+name: "phore-aarch64-1.8"
 enable_cache: true
 suites:
 - "xenial"
