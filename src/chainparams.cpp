@@ -209,8 +209,8 @@ public:
         assert(hashGenesisBlock == uint256("0x2b1a0f66712aad59ad283662d5b919415a25921ce89511d73019107e380485bf"));
         assert(genesis.hashMerkleRoot == uint256("0x894177137a45952cfed89dd395e7fc85208a53548f34defc7c1a85cb0736b3a3"));
 
-        vSeeds.push_back(CDNSSeedData("0", "dns0.phore.io")); // run by Moonshot
-        vSeeds.push_back(CDNSSeedData("1", "phore.seed.rho.industries")); // run by Julian Meyer (meyer9)
+        vSeeds.push_back(CDNSSeedData("0", "dns0.phore.io")); // run by Michael Trisko
+        vSeeds.push_back(CDNSSeedData("1", "dns1.phore.io")); // run by Michael Trisko
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 55);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 13);
