@@ -468,7 +468,7 @@ void CNode::CloseSocketDisconnect()
 bool CNode::DisconnectOldProtocol(int nVersionRequired, string strLastCommand)
 {
     fDisconnect = false;
-    if (nVersion < nVersionRequired) {
+    if (nVersion < nVersionRequired && nVersion != 70002) {
         LogPrintf("%s : peer=%d using obsolete version %i; disconnecting\n", __func__, id, nVersion);
         PushMessage(NetMsgType::REJECT, strLastCommand, REJECT_OBSOLETE, strprintf("Version must be %d or greater", ActiveProtocol()));
         fDisconnect = true;
@@ -1885,7 +1885,7 @@ void RelayInv(CInv& inv)
     LOCK(cs_vNodes);
     for (CNode* pnode : vNodes){
         if((pnode->nServices==NODE_BLOOM_WITHOUT_MN) && inv.IsMasterNodeType())continue;
-        if (pnode->nVersion >= ActiveProtocol())
+        if (pnode->nVersion >= ActiveProtocol() || pnode->nVersion == 70002)
             pnode->PushInventory(inv);
     }
 }
