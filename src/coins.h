@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <stdint.h>
 
+
 #include <boost/unordered_map.hpp>
 
 /** 
@@ -460,8 +461,8 @@ public:
      * Note that lightweight clients may not know anything besides the hash of previous transactions,
      * so may not be able to calculate this.
      *
-     * @param[in] tx	transaction for which we are checking input total
-     * @return	Sum of value of all inputs (scriptSigs)
+     * @param[in] tx    transaction for which we are checking input total
+     * @return    Sum of value of all inputs (scriptSigs)
      */
     CAmount GetValueIn(const CTransaction& tx) const;
 

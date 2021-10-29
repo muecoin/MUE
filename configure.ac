@@ -81,8 +81,8 @@ AC_PATH_TOOL(RANLIB, ranlib)
 AC_PATH_TOOL(STRIP, strip)
 AC_PATH_TOOL(GCOV, gcov)
 AC_PATH_PROG(LCOV, lcov)
-dnl Python 3.x is supported from 3.4 on (see https://github.com/bitcoin/bitcoin/issues/7893)
-AC_PATH_PROGS([PYTHON], [python3.7 python3.6 python3.5 python3.4 python3 python])
+dnl Python 3.5 is specified in .python-version and should be used if available, see doc/dependencies.md
+AC_PATH_PROGS([PYTHON], [python3.5 python3.6 python3.7 python3.8 python3 python])
 AC_PATH_PROG(GENHTML, genhtml)
 AC_PATH_PROG([GIT], [git])
 AC_PATH_PROG(CCACHE,ccache)
@@ -357,7 +357,7 @@ CXXFLAGS="$TEMP_CXXFLAGS"
 # [ AC_MSG_RESULT(no)]
 #)
 #CXXFLAGS="$TEMP_CXXFLAGS"
-
+#
 #TEMP_CXXFLAGS="$CXXFLAGS"
 #CXXFLAGS="$CXXFLAGS $AVX2_CXXFLAGS"
 #AC_MSG_CHECKING(for AVX2 intrinsics)
@@ -368,11 +368,11 @@ CXXFLAGS="$TEMP_CXXFLAGS"
 #    __m256i l = _mm256_set1_epi32(0);
 #    return _mm256_extract_epi32(l, 7);
 #  ]])],
-# [ AC_MSG_RESULT(yes); enable_avx2=no; AC_DEFINE(ENABLE_AVX2, 0, [Define this symbol to build code that uses AVX2 intrinsics]) ],
+# [ AC_MSG_RESULT(yes); enable_avx2=yes; AC_DEFINE(ENABLE_AVX2, 1, [Define this symbol to build code that uses AVX2 intrinsics]) ],
 # [ AC_MSG_RESULT(no)]
 #)
 #CXXFLAGS="$TEMP_CXXFLAGS"
-
+#
 #TEMP_CXXFLAGS="$CXXFLAGS"
 #CXXFLAGS="$CXXFLAGS $SHANI_CXXFLAGS"
 #AC_MSG_CHECKING(for SHA-NI intrinsics)
@@ -1308,9 +1308,9 @@ AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
 AM_CONDITIONAL([GLIBC_BACK_COMPAT],[test x$use_glibc_compat = xyes])
 AM_CONDITIONAL([HARDEN],[test x$use_hardening = xyes])
 AM_CONDITIONAL([ENABLE_HWCRC32],[test x$enable_hwcrc32 = xyes])
-#AM_CONDITIONAL([ENABLE_SSE41],[test x$enable_sse41 = xyes])
-#AM_CONDITIONAL([ENABLE_AVX2],[test x$enable_avx2 = xyes])
-#AM_CONDITIONAL([ENABLE_SHANI],[test x$enable_shani = xyes])
+AM_CONDITIONAL([ENABLE_SSE41],[test x$enable_sse41 = xyes])
+AM_CONDITIONAL([ENABLE_AVX2],[test x$enable_avx2 = xyes])
+AM_CONDITIONAL([ENABLE_SHANI],[test x$enable_shani = xyes])
 AM_CONDITIONAL([USE_ASM],[test x$use_asm = xyes])
 
 AC_DEFINE(CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MAJOR, [Major version])

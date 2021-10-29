@@ -69,6 +69,7 @@ private:
     SendCoinsDialog* sendCoinsPage;
     BlockExplorer* explorerWindow;
     MasternodeList* masternodeListPage;
+    QWidget* proposalListPage;
 
     TransactionView* transactionView;
     ProposalList *proposalList;
@@ -88,7 +89,7 @@ public slots:
     /** Switch to privacy page */
     void gotoPrivacyPage();
     /** Switch to proposal page */
-    void gotoProposalPage();	
+    void gotoProposalPage();
     /** Switch to receive coins page */
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
