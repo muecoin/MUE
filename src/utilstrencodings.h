@@ -39,6 +39,16 @@ enum SafeChars
 * @return           A new string without unsafe chars
 */
 std::string SanitizeString(const std::string& str, int rule = SAFE_CHARS_DEFAULT);
+
+/**
+* Check URL format for conformance for validity to a defined pattern
+* @param[in] strURL   The string to be processed for validity
+* @param[in] stdErr   A string that will be loaded with any validation error message
+* @param[in] maxSize  An unsigned int, defaulted to 64, to restrict the length
+* @return             A bool, true if valid, false if not (reason in stdErr)
+*/
+bool validateURL(std::string strURL, std::string& strErr, unsigned int maxSize = 64);
+
 std::vector<unsigned char> ParseHex(const char* psz);
 std::vector<unsigned char> ParseHex(const std::string& str);
 signed char HexDigit(char c);
@@ -137,13 +147,6 @@ bool TimingResistantEqual(const T& a, const T& b)
         accumulator |= a[i] ^ b[i % b.size()];
     return accumulator == 0;
 }
-
-/** Parse number as fixed point according to JSON number syntax.
- * See http://json.org/number.gif
- * @returns true on success, false on error.
- * @note The result must be in the range (-10^18,10^18), otherwise an overflow error will trigger.
- */
-bool ParseFixedPoint(const std::string &val, int decimals, int64_t *amount_out);
 
 /** Convert from one power-of-2 number base to another. */
 template<int frombits, int tobits, bool pad, typename O, typename I>
