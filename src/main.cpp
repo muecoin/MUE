@@ -1614,16 +1614,19 @@ double ConvertBitsToDouble(unsigned int nBits)
     }
 
     return dDiff;
+
 }
 
 int64_t GetBlockValue(int nHeight)
 {
     if (nHeight == 0) {
         return 139441613 * COIN;
-    } else if (nHeight <= 96513959) {
+    } else if (nHeight < 2665840) {
         return 36 * COIN;
-    } else if (nHeight == 96513960) {
-        return 13 * COIN;
+    } else if (nHeight >= 2665840 && nHeight < 13058321) {
+        return 6 * COIN;
+    } else if (nHeight == 13058321) {
+        return 3 * COIN;
     }
     return 0;
 }

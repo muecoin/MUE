@@ -198,6 +198,12 @@ bool CSporkManager::CheckSignature(CSporkMessage& spork)
         return true;
     }
 
+    CPubKey pubkeytemp2(ParseHex(Params().SporkKeyTemp2()));
+    if (spork.nTimeSigned < 1609372800 && obfuScationSigner.VerifyMessage(pubkeytemp2, spork.vchSig, strMessage, errorMessage)) {
+        return true;
+    }
+
+
     return false;
 }
 
