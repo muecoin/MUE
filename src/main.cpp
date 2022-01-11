@@ -1619,6 +1619,21 @@ double ConvertBitsToDouble(unsigned int nBits)
 
 int64_t GetBlockValue(int nHeight)
 {
+    // Testnet
+    if (Params().NetworkID() == CBaseChainParams::TESTNET) {
+        if (nHeight == 0) {
+            return 139441613 * COIN;
+        } else if (nHeight < 2665840) {
+            return 36 * COIN;
+        } else if (nHeight >= 46000 && nHeight < 13058321) {
+            return 6 * COIN;
+        } else if (nHeight == 13058321) {
+            return 3 * COIN;
+        }
+        return 0;
+    }
+    
+    // Mainnet or regtest
     if (nHeight == 0) {
         return 139441613 * COIN;
     } else if (nHeight < 2665840) {
