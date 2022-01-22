@@ -1636,9 +1636,9 @@ int64_t GetBlockValue(int nHeight)
     // Mainnet or regtest
     if (nHeight == 0) {
         return 139441613 * COIN;
-    } else if (nHeight < 2665840) {
+    } else if (nHeight < 2700000) {
         return 36 * COIN;
-    } else if (nHeight >= 2665840 && nHeight < 13058321) {
+    } else if (nHeight >= 2700000 && nHeight < 13058321) {
         return 6 * COIN;
     } else if (nHeight == 13058321) {
         return 3 * COIN;
